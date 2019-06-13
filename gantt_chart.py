@@ -12,9 +12,9 @@ import gantt
 class GanttChart:
     COLORS = {
         (): '#000000',
-        ('Frontend',): '#78c48c',
-        ('Backend',): '#6268a3',
-        ('Backend', 'Frontend'): '#ff0000',
+        ('FRONTEND',): '#78c48c',
+        ('BACKEND',): '#6268a3',
+        ('BACKEND', 'FRONTEND'): '#ff0000',
     }
 
     def __init__(self):
@@ -27,7 +27,7 @@ class GanttChart:
         }
 
     def add_task(self, id_: str, title: str, points: int, labels: List[str] = ()):
-        self._tasks[id_] = (title, points, tuple(sorted(labels)))
+        self._tasks[id_] = (title, points, tuple(sorted(label.upper() for label in labels)))
         len(self._dependencies[id_])  # For initializing defaultdict
 
     def add_dependency(self, blocker: str, blocked: str):
@@ -44,11 +44,12 @@ class GanttChart:
                 start=today,
                 duration=self._tasks[id_][1],
                 depends_of=[gantt_tasks[blocker] for blocker in self._dependencies[id_]],
-                color=self.COLORS[self._tasks[id_][2]],
+                #color=self.COLORS.get(self._tasks[id_][2], self.COLORS[()]),
                 resources=list(self._resources.values()),
             )
             self._project.add_task(task)
 
         directory = tempfile.gettempdir()
         filename = os.path.join(directory, 'gantt_chart.svg')
-        self._project.make_svg_for_tasks(filename=filename, today=today)
+        print(filename)
+        self._project.make_svg_for_resources(filename=filename, today=today, resources=list(self._resources.values()))
