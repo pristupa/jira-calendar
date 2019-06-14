@@ -25,14 +25,14 @@ def is_closed(issue) -> bool:
     return issue.fields.status.name not in ('In Progress', 'Opened')
 
 
+issues = [issue for issue in issues if not is_closed(issue)]
+
 total_points = 0
 total_points_per_label = defaultdict(int)
 not_estimated_issues = []
 issue_graph = IssueGraph()
 gantt_chart = GanttChart()
 for issue in issues:
-    if is_closed(issue):
-        continue
     story_points = issue.fields.customfield_10005
     status_name = issue.fields.status.name
     issue_graph.add_issue(
