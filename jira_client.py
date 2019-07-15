@@ -5,6 +5,7 @@ from typing import List
 
 from jira import Issue
 from jira import JIRA
+import argparse
 
 from gantt_chart import GanttChart
 from issue_graph import IssueGraph
@@ -16,8 +17,16 @@ options = {'server': os.environ.get('JIRA_HOST')}
 cookie = (username, token)
 auth_jira = JIRA(options, basic_auth=cookie)
 
-epic_keys = sys.argv[1:]
-jql = ' OR '.join(f'"Epic Link"={epic_key}' for epic_key in epic_keys)
+
+parser = argparse.ArgumentParser(description='Process some integers.')
+parser.add_argument('--epics', type=str, nargs='+')
+parser.add_argument('--sprints', type=str, nargs='+')
+args = parser.parse_args()
+
+jql = ' OR '.join([
+    ' OR '.join(f'"Epic Link"={epic_key}' for epic_key in args.epics),
+    ' OR '.join(f'"Sprint"="{sprint_key}"' for sprint_key in args.sprints),
+])
 issues: List[Issue] = auth_jira.search_issues(jql, maxResults=False)
 
 
@@ -25,7 +34,16 @@ def is_closed(issue) -> bool:
     return issue.fields.status.name not in ('In Progress', 'Opened')
 
 
-issues = [issue for issue in issues if not is_closed(issue)]
+def is_bug(issue) -> bool:
+    return issue.fields.issuetype.name in ('Defect', 'Bug')
+
+
+def is_subtask(issue) -> bool:
+    return issue.fields.issuetype.name in ('Sub-task')
+
+
+bugs = [issue for issue in issues if is_bug(issue)]
+issues = [issue for issue in issues if not is_closed(issue) and not is_bug(issue) and not is_subtask(issue)]
 
 total_points = 0
 total_points_per_label = defaultdict(int)
@@ -57,6 +75,7 @@ for issue in issues:
         not_estimated_issues.append(issue)
 
 print(f'Total issues: {len(issues)}')
+print(f'Bugs and defects: {len(bugs)}')
 print(f'Not estimated issues: {len(not_estimated_issues)}')
 print(f'Total points: {total_points}')
 for label, points in total_points_per_label.items():
