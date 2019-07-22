@@ -42,7 +42,7 @@ def is_subtask(issue) -> bool:
     return issue.fields.issuetype.name in ('Sub-task')
 
 
-bugs = [issue for issue in issues if is_bug(issue)]
+bugs = [issue for issue in issues if is_bug(issue) and not is_closed(issue)]
 issues = [issue for issue in issues if not is_closed(issue) and not is_bug(issue) and not is_subtask(issue)]
 
 total_points = 0
