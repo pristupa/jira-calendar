@@ -74,11 +74,23 @@ for issue in issues:
     else:
         not_estimated_issues.append(issue)
 
+bugs_per_label = defaultdict(list)
+for bug in bugs:
+    for label in bug.fields.labels:
+        bugs_per_label[label].append(bug)
+    if not bug.fields.labels:
+        bugs_per_label['Not investigated'].append(bug)
+
 print(f'Total issues: {len(issues)}')
-print(f'Bugs and defects: {len(bugs)}')
 print(f'Not estimated issues: {len(not_estimated_issues)}')
 print(f'Total points: {total_points}')
 for label, points in total_points_per_label.items():
     print(f'{label} points: {points}')
+
+print()
+print(f'Bugs and defects: {len(bugs)}')
+for label, label_bugs in bugs_per_label.items():
+    print(f'{label}: {len(label_bugs)}')
+
 issue_graph.show()
 gantt_chart.show()
