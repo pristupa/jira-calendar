@@ -83,6 +83,8 @@ for bug in bugs:
 
 print(f'Total issues: {len(issues)}')
 print(f'Not estimated issues: {len(not_estimated_issues)}')
+
+print()
 print(f'Total points: {total_points}')
 for label, points in total_points_per_label.items():
     print(f'{label} points: {points}')
