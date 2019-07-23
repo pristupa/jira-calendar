@@ -39,13 +39,22 @@ def is_bug(issue) -> bool:
 
 
 def is_subtask(issue) -> bool:
-    return issue.fields.issuetype.name in ('Sub-task')
+    return issue.fields.issuetype.name in ('Sub-task', )
 
 
 bugs = [issue for issue in issues if is_bug(issue) and not is_closed(issue)]
-issues = [issue for issue in issues if not is_closed(issue) and not is_bug(issue) and not is_subtask(issue)]
-
+total_bugs = len([issue for issue in issues if is_bug(issue)])
+issues = [issue for issue in issues if not is_subtask(issue) and not is_bug(issue)]
+total_issues = len(issues)
 total_points = 0
+for issue in issues:
+    story_points = issue.fields.customfield_10005
+    if story_points:
+        total_points += int(story_points)
+
+issues = [issue for issue in issues if not is_closed(issue)]
+
+remaining_points = 0
 total_points_per_label = defaultdict(int)
 not_estimated_issues = []
 issue_graph = IssueGraph()
@@ -68,7 +77,7 @@ for issue in issues:
                 gantt_chart.add_dependency(issue.key, issue_link.outwardIssue.key)
 
     if story_points:
-        total_points += int(story_points)
+        remaining_points += int(story_points)
         for label in issue.fields.labels:
             total_points_per_label[label] += int(story_points)
     else:
@@ -81,16 +90,16 @@ for bug in bugs:
     if not bug.fields.labels:
         bugs_per_label['Not investigated'].append(bug)
 
-print(f'Total issues: {len(issues)}')
+print(f'Remaining issues: {len(issues)} (of {total_issues})')
 print(f'Not estimated issues: {len(not_estimated_issues)}')
 
 print()
-print(f'Total points: {total_points}')
+print(f'Remaining points: {remaining_points} (of {total_points})')
 for label, points in total_points_per_label.items():
     print(f'{label} points: {points}')
 
 print()
-print(f'Bugs and defects: {len(bugs)}')
+print(f'Remaining bugs and defects: {len(bugs)} (of {total_bugs})')
 for label, label_bugs in bugs_per_label.items():
     print(f'{label}: {len(label_bugs)}')
 
