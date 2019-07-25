@@ -19,14 +19,20 @@ auth_jira = JIRA(options, basic_auth=cookie)
 
 
 parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('--epics', type=str, nargs='+')
-parser.add_argument('--sprints', type=str, nargs='+')
+parser.add_argument('--epics', type=str, nargs='+', default=[])
+parser.add_argument('--sprints', type=str, nargs='+', default=[])
+parser.add_argument('--releases', type=str, nargs='+', default=[])
 args = parser.parse_args()
 
-jql = ' OR '.join([
-    ' OR '.join(f'"Epic Link"={epic_key}' for epic_key in args.epics),
-    ' OR '.join(f'"Sprint"="{sprint_key}"' for sprint_key in args.sprints),
-])
+filters = []
+if args.epics:
+    filters.append(' OR '.join(f'"Epic Link"={epic_key}' for epic_key in args.epics))
+if args.sprints:
+    filters.append(' OR '.join(f'"Sprint"="{sprint_key}"' for sprint_key in args.sprints))
+if args.releases:
+    filters.append(' OR '.join(f'fixVersion="{release}"' for release in args.releases))
+
+jql = ' OR '.join(filters)
 issues: List[Issue] = auth_jira.search_issues(jql, maxResults=False)
 
 
