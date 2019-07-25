@@ -22,6 +22,8 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('--epics', type=str, nargs='+', default=[])
 parser.add_argument('--sprints', type=str, nargs='+', default=[])
 parser.add_argument('--releases', type=str, nargs='+', default=[])
+parser.add_argument('--show_gantt', action='store_true', default=False)
+parser.add_argument('--show_graph', action='store_true', default=False)
 args = parser.parse_args()
 
 filters = []
@@ -109,5 +111,7 @@ print(f'Remaining bugs and defects: {len(bugs)} (of {total_bugs})')
 for label, label_bugs in bugs_per_label.items():
     print(f'{label}: {len(label_bugs)}')
 
-issue_graph.show()
-gantt_chart.show()
+if args.show_graph:
+    issue_graph.show()
+if args.show_gantt:
+    gantt_chart.show()
