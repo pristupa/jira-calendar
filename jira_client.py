@@ -1,11 +1,10 @@
+import argparse
 import os
-import sys
 from collections import defaultdict
 from typing import List
 
 from jira import Issue
 from jira import JIRA
-import argparse
 
 from gantt_chart import GanttChart
 from issue_graph import IssueGraph
@@ -39,7 +38,7 @@ issues: List[Issue] = auth_jira.search_issues(jql, maxResults=False)
 
 
 def is_closed(issue) -> bool:
-    return issue.fields.status.name not in ('In Progress', 'Opened')
+    return issue.fields.status.raw['id'] not in ('10000', '3')  # Opened, In progress
 
 
 def is_bug(issue) -> bool:
@@ -59,7 +58,6 @@ for issue in issues:
     story_points = issue.fields.customfield_10005
     if story_points:
         total_points += int(story_points)
-
 issues = [issue for issue in issues if not is_closed(issue)]
 
 remaining_points = 0

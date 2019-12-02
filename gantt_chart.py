@@ -4,9 +4,8 @@ import tempfile
 from collections import defaultdict
 from typing import List
 
-from toposort import toposort_flatten
-
 import gantt
+from toposort import toposort_flatten
 
 
 class GanttChart:
@@ -50,6 +49,12 @@ class GanttChart:
             self._project.add_task(task)
 
         directory = tempfile.gettempdir()
-        filename = os.path.join(directory, 'gantt_chart.svg')
-        print(filename)
-        self._project.make_svg_for_resources(filename=filename, today=today, resources=list(self._resources.values()))
+        self._project.make_svg_for_resources(
+            filename=os.path.join(directory, 'gantt_resources.svg'),
+            today=today,
+            resources=list(self._resources.values()),
+        )
+        self._project.make_svg_for_tasks(
+            filename=os.path.join(directory, 'gantt_tasks.svg'),
+            today=today,
+        )
