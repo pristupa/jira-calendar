@@ -38,6 +38,8 @@ issues: List[Issue] = auth_jira.search_issues(jql, maxResults=False)
 
 
 def is_closed(issue) -> bool:
+#    print(issue.fields.status.raw)
+    return issue.fields.status.raw['id'] == '6'  # Closed
     return issue.fields.status.raw['id'] not in ('10000', '3')  # Opened, In progress
 
 
@@ -54,10 +56,6 @@ total_bugs = len([issue for issue in issues if is_bug(issue)])
 issues = [issue for issue in issues if not is_subtask(issue) and not is_bug(issue)]
 total_issues = len(issues)
 total_points = 0
-for issue in issues:
-    story_points = issue.fields.customfield_10005
-    if story_points:
-        total_points += int(story_points)
 issues = [issue for issue in issues if not is_closed(issue)]
 
 remaining_points = 0
@@ -65,8 +63,12 @@ total_points_per_label = defaultdict(int)
 not_estimated_issues = []
 issue_graph = IssueGraph()
 gantt_chart = GanttChart()
-for issue in issues:
+visited_keys = {issue.key for issue in issues}
+while len(issues) > 0:
+    issue = issues.pop()
     story_points = issue.fields.customfield_10005
+    if story_points:
+        total_points += int(story_points)
     status_name = issue.fields.status.name
     issue_graph.add_issue(
         issue.key,
@@ -77,8 +79,12 @@ for issue in issues:
     )
     gantt_chart.add_task(issue.key, issue.key, int(story_points or '0'), issue.fields.labels)
     for issue_link in issue.fields.issuelinks:
-        if issue_link.type.name == 'Blocks' and hasattr(issue_link, 'outwardIssue'):
-            if not is_closed(issue_link.outwardIssue):
+        if issue_link.type.name == 'Blocks':
+            if hasattr(issue_link, 'inwardIssue') and issue_link.inwardIssue.key not in visited_keys:
+                inward_issue = auth_jira.issue(issue_link.inwardIssue.key)
+                visited_keys.add(inward_issue.key)
+                issues.append(inward_issue)
+            if hasattr(issue_link, 'outwardIssue') and not is_closed(issue_link.outwardIssue):
                 issue_graph.add_link(issue.key, issue_link.outwardIssue.key)
                 gantt_chart.add_dependency(issue.key, issue_link.outwardIssue.key)
 
