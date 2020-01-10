@@ -20,3 +20,6 @@ For example:
 ```
 JIRA_HOST=domain JIRA_USERNAME=username JIRA_TOKEN=token pipenv run python jira_client.py --sprints "Sprint 80" "Sprint 81" --show_graph
 ```
+```
+JIRA_HOST=domain JIRA_USERNAME=username JIRA_TOKEN=token pipenv run python jira_client.py --epics "My Epic" --show_graph
+```
