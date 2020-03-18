@@ -6,7 +6,7 @@ Graphviz is used for charts generation. On MacOS you can install it with Homebre
 
 
 ### Install
-Run `pip install -r requirements.txt` in the root directory
+Run `pipenv sync` in the root directory
 
 
 ### Usage
@@ -18,5 +18,8 @@ The following environment variables are required:
 
 For example:
 ```
-JIRA_HOST=domain JIRA_USERNAME=username JIRA_TOKEN=token python jira_client.py --sprints "Sprint 80" "Sprint 81" --show_graph
+pipenv run python jira_client.py --sprints "Sprint 80" "Sprint 81" --show_graph
+```
+```
+pipenv run python jira_client.py --epics "My Epic" --show_graph
 ```
