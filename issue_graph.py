@@ -27,7 +27,22 @@ class IssueGraph:
             node_label += f'<br/>Story points: {int(points)}'
         else:
             node_label += f'<br/><b><font color="#ff0000">No estimation</font></b>'
-        self.graph.node(name=id_, label=f'<{node_label}>')
+        style = None
+        if status in {'Code Review'}:
+            color = 'yellow'
+            style = 'filled'
+        elif status in {'В работе', 'In Progress', 'In Development'}:
+            color = 'cyan'
+            style = 'filled'
+        elif status in {'Opened', 'Requirements Testing', 'Requirements Grooming', 'Test Case Coverage', 'Ready For Dev'}:
+            color = 'black'
+        elif status in {'QA/Testing', 'Stakeholder Review', 'Closed', 'Закрыто'}:
+            color = '#80FF80'
+            style = 'filled'
+        else:
+            print(f'Unexpected status: {status}')
+            color = 'red'
+        self.graph.node(name=id_, label=f'<{node_label}>', color=color, style=style)
 
     def add_link(self, blocker: str, blocked: str):
         self.graph.edge(blocker, blocked)

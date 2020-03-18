@@ -38,9 +38,8 @@ issues: List[Issue] = auth_jira.search_issues(jql, maxResults=False)
 
 
 def is_closed(issue) -> bool:
-#    print(issue.fields.status.raw)
+    return False
     return issue.fields.status.raw['id'] == '6'  # Closed
-    return issue.fields.status.raw['id'] not in ('10000', '3')  # Opened, In progress
 
 
 def is_bug(issue) -> bool:
@@ -48,7 +47,7 @@ def is_bug(issue) -> bool:
 
 
 def is_subtask(issue) -> bool:
-    return issue.fields.issuetype.name in ('Sub-task', )
+    return issue.fields.issuetype.name.startswith('Sub')
 
 
 bugs = [issue for issue in issues if is_bug(issue) and not is_closed(issue)]
@@ -66,7 +65,7 @@ gantt_chart = GanttChart()
 visited_keys = {issue.key for issue in issues}
 while len(issues) > 0:
     issue = issues.pop()
-    story_points = issue.fields.customfield_10005
+    story_points = getattr(issue.fields, 'customfield_10005', None)
     if story_points:
         total_points += int(story_points)
     status_name = issue.fields.status.name
