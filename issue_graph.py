@@ -47,7 +47,5 @@ class IssueGraph:
     def add_link(self, blocker: str, blocked: str):
         self.graph.edge(blocker, blocked)
 
-    def show(self):
-        directory = tempfile.gettempdir()
-        filename = os.path.join(directory, 'dependency_graph.gv')
-        self.graph.render(filename, view=True)
+    def save(self, filename='dependency_graph', view=False):
+        self.graph.render(filename, view=view)

@@ -114,7 +114,6 @@ print(f'Remaining bugs and defects: {len(bugs)} (of {total_bugs})')
 for label, label_bugs in bugs_per_label.items():
     print(f'{label}: {len(label_bugs)}')
 
-if args.show_graph:
-    issue_graph.show()
+issue_graph.save(view=args.show_graph)
 if args.show_gantt:
     gantt_chart.show()
