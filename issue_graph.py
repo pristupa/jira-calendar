@@ -1,3 +1,4 @@
+import html
 import os
 import tempfile
 from typing import List
@@ -19,10 +20,11 @@ class IssueGraph:
 
     def add_issue(self, id_: str, summary: str, points: str, status: str, labels: List[str] = ()):
         short_summary = summary[:50] if summary else ''
+        escaped_short_summary = html.escape(short_summary)
         first_line = f'<b>{id_}</b>'
         for label in labels:
             first_line += ' ' + self.issue_labels_html.get(label, label)
-        node_label = f'{first_line}<br/>{short_summary}'
+        node_label = f'{first_line}<br/>{escaped_short_summary}'
         if points:
             node_label += f'<br/>Story points: {int(points)}'
         else:
